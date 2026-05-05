@@ -7,7 +7,7 @@
     "icon": "./assets/images/icon.png",
     "scheme": "qrappnew",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "ios": {
       "supportsTablet": true
     },
@@ -19,7 +19,9 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": ["android.permission.CAMERA"],
+      "package": "com.jazmin_diaz24.qrappnew"
     },
     "web": {
       "output": "static",
@@ -39,20 +41,18 @@
           }
         }
       ],
-      "expo-barcode-scanner",
-      "expo-secure-store",
-      [
-        "expo-media-library",
-        {
-          "photosPermission": "Permitir guardar el código QR en tu galería.",
-          "savePhotosPermission": "Permitir guardar el código QR en tu galería.",
-          "isAccessMediaLocationEnabled": true
-        }
-      ]
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "cd411197-e086-46d9-90fb-74d4d1c9b330"
+      }
+    },
+    "owner": "jazmin_diaz24"
   }
 }

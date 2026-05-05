@@ -11,7 +11,7 @@ import { styles } from "../styles/resultadoStyles";
 export default function Resultado() {
   const { value } = useLocalSearchParams<{ value: string }>();
   const { colors } = useAppTheme();
-  const { viewShotRef, activeAction, guardarQR, compartirQR } = useQrCapture();
+  const { viewShotRef, compartirQR } = useQrCapture();
 
   return (
     <ScrollView
@@ -52,65 +52,21 @@ export default function Resultado() {
         <Pressable
           style={[
             styles.actionButton,
-            activeAction === "save" ? styles.btnPrimary : styles.btnOutline,
-            activeAction === "save"
-              ? { backgroundColor: colors.accent, borderColor: colors.accent }
-              : { borderColor: colors.border, backgroundColor: "transparent" },
-          ]}
-          onPress={guardarQR}
-        >
-          <Ionicons
-            name="download-outline"
-            size={22}
-            color={
-              activeAction === "save" ? colors.accentContrast : colors.text
-            }
-          />
-          <Text
-            style={[
-              styles.actionText,
-              activeAction === "save"
-                ? styles.btnTextPrimary
-                : styles.btnTextOutline,
-              {
-                color:
-                  activeAction === "save" ? colors.accentContrast : colors.text,
-              },
-            ]}
-          >
-            Guardar código QR
-          </Text>
-        </Pressable>
-
-        <Pressable
-          style={[
-            styles.actionButton,
-            activeAction === "share" ? styles.btnPrimary : styles.btnOutline,
-            activeAction === "share"
-              ? { backgroundColor: colors.accent, borderColor: colors.accent }
-              : { borderColor: colors.border, backgroundColor: "transparent" },
+            styles.btnPrimary,
+            { backgroundColor: colors.accent, borderColor: colors.accent },
           ]}
           onPress={compartirQR}
         >
           <Ionicons
             name="share-social-outline"
             size={22}
-            color={
-              activeAction === "share" ? colors.accentContrast : colors.text
-            }
+            color={colors.accentContrast}
           />
           <Text
             style={[
               styles.actionText,
-              activeAction === "share"
-                ? styles.btnTextPrimary
-                : styles.btnTextOutline,
-              {
-                color:
-                  activeAction === "share"
-                    ? colors.accentContrast
-                    : colors.text,
-              },
+              styles.btnTextPrimary,
+              { color: colors.accentContrast },
             ]}
           >
             Compartir código QR
