@@ -1,4 +1,15 @@
-import type { TextStyle, ViewStyle } from "react-native";
+import { Platform, type TextStyle, type ViewStyle } from "react-native";
+
+export const appFontFamily = Platform.select({
+  ios: "ArialMT",
+  android: "Roboto",
+  web: "Arial, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, sans-serif",
+  default: undefined,
+});
+
+export const appTextStyle = {
+  ...(appFontFamily ? { fontFamily: appFontFamily } : {}),
+} as TextStyle;
 
 export const palette = {
   accent: "#00C2E0",
@@ -64,7 +75,7 @@ export const headerStyles = {
   } as ViewStyle,
   backButton: { padding: spacing.xs } as ViewStyle,
   backButtonSpaced: { padding: spacing.xs, marginRight: spacing.sm } as ViewStyle,
-  title: { fontSize: 20, fontWeight: "700" } as TextStyle,
+  title: { ...appTextStyle, fontSize: 20, fontWeight: "700" } as TextStyle,
 };
 
 export const cardStyles = {
@@ -89,6 +100,7 @@ export const cardStyles = {
 
 export const inputStyles = {
   input: {
+    ...appTextStyle,
     borderWidth: 1,
     borderColor: palette.borderDefault,
     paddingHorizontal: spacing.md,
@@ -106,6 +118,7 @@ export const inputStyles = {
     alignItems: "center",
   } as ViewStyle,
   inputWithIcon: {
+    ...appTextStyle,
     flex: 1,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.md,
@@ -128,6 +141,7 @@ export const buttonStyles = {
     alignItems: "center",
   } as ViewStyle,
   buttonText: {
+    ...appTextStyle,
     color: palette.white,
     fontWeight: "bold",
     fontSize: 16,
@@ -144,8 +158,14 @@ export const buttonStyles = {
 };
 
 export const textStyles = {
-  title: { fontSize: 22, fontWeight: "bold", marginBottom: 8 } as TextStyle,
-  subtitle: { fontSize: 14, lineHeight: 20, marginBottom: 24 } as TextStyle,
-  label: { fontSize: 12, fontWeight: "800", marginBottom: 10, letterSpacing: 1 } as TextStyle,
-  mutedText: { fontSize: 14, color: palette.neutral500 } as TextStyle,
+  title: { ...appTextStyle, fontSize: 22, fontWeight: "bold", marginBottom: 8 } as TextStyle,
+  subtitle: { ...appTextStyle, fontSize: 14, lineHeight: 20, marginBottom: 24 } as TextStyle,
+  label: {
+    ...appTextStyle,
+    fontSize: 12,
+    fontWeight: "800",
+    marginBottom: 10,
+    letterSpacing: 1,
+  } as TextStyle,
+  mutedText: { ...appTextStyle, fontSize: 14, color: palette.neutral500 } as TextStyle,
 };

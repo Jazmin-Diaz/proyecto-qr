@@ -1,19 +1,11 @@
-import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useState } from "react";
-import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { Alert, Pressable, Text, TextInput } from "react-native";
+import { AuthScreenLayout } from "../components/auth/auth-screen-layout";
+import { PasswordInput } from "../components/auth/password-input";
 import { useAppTheme } from "../hooks/use-app-theme";
+import { useAuth } from "../src/context/auth-context";
 import { registerUser } from "../src/services/auth";
-import { saveSession } from "../src/storage/session";
 import { styles } from "../styles/registerStyles";
 
 export default function Register() {
@@ -25,6 +17,7 @@ export default function Register() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { colors } = useAppTheme();
+  const { signIn } = useAuth();
 
   const handleRegister = async () => {
     if (!name || !email || !password || !confirmPassword) {
@@ -58,7 +51,7 @@ export default function Register() {
         password,
       });
 
-      await saveSession(response.usuario);
+      await signIn(response.usuario);
       Alert.alert("Cuenta creada", "Tu cuenta se registró correctamente");
       router.replace("/(tabs)/perfil");
     } catch (error) {
@@ -71,133 +64,80 @@ export default function Register() {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={[styles.container, { backgroundColor: colors.background }]}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 50 : 0}
+    <AuthScreenLayout
+      title="Registrarse"
+      subtitle="Crea tu cuenta para guardar tus datos y tu actividad."
+      colors={colors}
     >
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
-        keyboardDismissMode="on-drag"
+      <TextInput
+        style={[
+          styles.input,
+          {
+            color: colors.text,
+            borderColor: colors.border,
+            backgroundColor: colors.input,
+          },
+        ]}
+        placeholder="Nombre completo"
+        placeholderTextColor={colors.mutedText}
+        value={name}
+        onChangeText={setName}
+        returnKeyType="next"
+      />
+
+      <TextInput
+        style={[
+          styles.input,
+          {
+            color: colors.text,
+            borderColor: colors.border,
+            backgroundColor: colors.input,
+          },
+        ]}
+        placeholder="Correo"
+        placeholderTextColor={colors.mutedText}
+        keyboardType="email-address"
+        autoCapitalize="none"
+        value={email}
+        onChangeText={setEmail}
+        returnKeyType="next"
+      />
+
+      <PasswordInput
+        placeholder="Contraseña"
+        value={password}
+        onChangeText={setPassword}
+        visible={showPassword}
+        onToggleVisible={() => setShowPassword((prev) => !prev)}
+        returnKeyType="next"
+        colors={colors}
+      />
+
+      <PasswordInput
+        placeholder="Confirmar contraseña"
+        value={confirmPassword}
+        onChangeText={setConfirmPassword}
+        visible={showConfirmPassword}
+        onToggleVisible={() => setShowConfirmPassword((prev) => !prev)}
+        returnKeyType="done"
+        colors={colors}
+      />
+
+      <Pressable
+        style={[styles.button, { backgroundColor: colors.accent }]}
+        disabled={isLoading}
+        onPress={handleRegister}
       >
-        <Text style={[styles.title, { color: colors.text }]}>Registrarse</Text>
-        <Text style={[styles.subtitle, { color: colors.mutedText }]}>
-          Crea tu cuenta para guardar tus datos y tu actividad.
+        <Text style={[styles.buttonText, { color: colors.accentContrast }]}>
+          {isLoading ? "Registrando..." : "Registrarse"}
         </Text>
+      </Pressable>
 
-        <TextInput
-          style={[
-            styles.input,
-            {
-              color: colors.text,
-              borderColor: colors.border,
-              backgroundColor: colors.input,
-            },
-          ]}
-          placeholder="Nombre completo"
-          placeholderTextColor={colors.mutedText}
-          value={name}
-          onChangeText={setName}
-          returnKeyType="next"
-        />
-
-        <TextInput
-          style={[
-            styles.input,
-            {
-              color: colors.text,
-              borderColor: colors.border,
-              backgroundColor: colors.input,
-            },
-          ]}
-          placeholder="Correo"
-          placeholderTextColor={colors.mutedText}
-          keyboardType="email-address"
-          autoCapitalize="none"
-          value={email}
-          onChangeText={setEmail}
-          returnKeyType="next"
-        />
-
-        <View
-          style={[
-            styles.inputWrapper,
-            {
-              borderColor: colors.border,
-              backgroundColor: colors.input,
-            },
-          ]}
-        >
-          <TextInput
-            style={[styles.inputWithIcon, { color: colors.text }]}
-            placeholder="Contraseña"
-            placeholderTextColor={colors.mutedText}
-            secureTextEntry={!showPassword}
-            autoCapitalize="none"
-            value={password}
-            onChangeText={setPassword}
-            returnKeyType="next"
-          />
-          <Pressable
-            onPress={() => setShowPassword((prev) => !prev)}
-            style={styles.iconButton}
-          >
-            <Ionicons
-              name={showPassword ? "eye-off-outline" : "eye-outline"}
-              size={20}
-              color={colors.mutedText}
-            />
-          </Pressable>
-        </View>
-
-        <View
-          style={[
-            styles.inputWrapper,
-            {
-              borderColor: colors.border,
-              backgroundColor: colors.input,
-            },
-          ]}
-        >
-          <TextInput
-            style={[styles.inputWithIcon, { color: colors.text }]}
-            placeholder="Confirmar contraseña"
-            placeholderTextColor={colors.mutedText}
-            secureTextEntry={!showConfirmPassword}
-            autoCapitalize="none"
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
-            returnKeyType="done"
-          />
-          <Pressable
-            onPress={() => setShowConfirmPassword((prev) => !prev)}
-            style={styles.iconButton}
-          >
-            <Ionicons
-              name={showConfirmPassword ? "eye-off-outline" : "eye-outline"}
-              size={20}
-              color={colors.mutedText}
-            />
-          </Pressable>
-        </View>
-
-        <Pressable
-          style={[styles.button, { backgroundColor: colors.accent }]}
-          disabled={isLoading}
-          onPress={handleRegister}
-        >
-          <Text style={[styles.buttonText, { color: colors.accentContrast }]}>
-            {isLoading ? "Registrando..." : "Registrarse"}
-          </Text>
-        </Pressable>
-
-        <Pressable onPress={() => router.push("/login")}>
-          <Text style={[styles.linkText, { color: colors.accent }]}>
-            ¿Ya tienes cuenta? Inicia sesión
-          </Text>
-        </Pressable>
-      </ScrollView>
-    </KeyboardAvoidingView>
+      <Pressable onPress={() => router.push("/login")}>
+        <Text style={[styles.linkText, { color: colors.accent }]}>
+          ¿Ya tienes cuenta? Inicia sesión
+        </Text>
+      </Pressable>
+    </AuthScreenLayout>
   );
 }

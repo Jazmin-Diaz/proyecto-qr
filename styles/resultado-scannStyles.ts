@@ -1,24 +1,22 @@
 import { StyleSheet } from "react-native";
 import {
+  appTextStyle,
   buttonStyles,
   layoutStyles,
   palette,
   radius,
   spacing,
-  textStyles,
 } from "./sharedStyles";
 
 export const styles = StyleSheet.create({
-  container: {
-    ...layoutStyles.container,
-    backgroundColor: palette.neutral200,
-    paddingTop: 60,
-    paddingHorizontal: spacing.xl,
+  container: layoutStyles.container,
+  scrollContent: {
+    paddingBottom: spacing.section,
   },
-
   content: {
-    ...layoutStyles.container,
     alignItems: "center",
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.xxl,
   },
   iconContainer: {
     width: 120,
@@ -39,27 +37,46 @@ export const styles = StyleSheet.create({
     elevation: 2,
     shadowColor: palette.black,
     shadowOpacity: 0.05,
-    marginBottom: spacing.xxl,
+    marginBottom: spacing.xl,
   },
-  label: {
-    ...textStyles.label,
-    color: palette.neutral600,
+  cardTitle: {
+    ...appTextStyle,
+    fontSize: 20,
+    fontWeight: "700",
+    marginBottom: spacing.sm,
   },
-  resultText: {
-    fontSize: 18,
-    color: palette.neutral700,
-    lineHeight: 24,
+  fieldsContainer: {
+    alignSelf: "stretch",
   },
-  linkButton: {
-    ...buttonStyles.primaryButton,
+  fieldRow: {
+    borderBottomWidth: 1,
+    paddingVertical: spacing.sm,
+    gap: spacing.xs,
+  },
+  fieldLabel: {
+    ...appTextStyle,
+    fontSize: 12,
+    fontWeight: "800",
+    textTransform: "uppercase",
+  },
+  fieldValue: {
+    ...appTextStyle,
+    fontSize: 15,
+    lineHeight: 22,
+  },
+  actionButton: {
     ...layoutStyles.rowCenter,
     width: "100%",
     padding: 18,
     borderRadius: radius.lg,
+    borderWidth: 1.5,
     justifyContent: "center",
   },
-  linkButtonText: buttonStyles.buttonText,
-  linkButtonIcon: {
-    marginLeft: spacing.sm,
+  actionText: {
+    ...buttonStyles.buttonText,
+    fontSize: 16,
+  },
+  bottomSpacer: {
+    height: spacing.section,
   },
 });

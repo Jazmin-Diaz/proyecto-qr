@@ -1,171 +1,116 @@
-import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { useState } from "react";
 import {
   Alert,
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
   ScrollView,
   Text,
-  TextInput,
   View,
 } from "react-native";
+import { CreateQrHeader } from "../../components/qr/create-qr-header";
+import { LockedGuestView } from "../../components/qr/locked-guest-view";
+import { QrContentForm } from "../../components/qr/qr-content-form";
+import { QrCustomizationForm } from "../../components/qr/qr-customization-form";
+import { QrTypeSelector } from "../../components/qr/qr-type-selector";
+import { SessionLoadingView } from "../../components/qr/session-loading-view";
 import { useAppTheme } from "../../hooks/use-app-theme";
+import { useQrForm } from "../../hooks/use-qr-form";
 import { useSession } from "../../hooks/use-session";
-import { addGeneratedItem } from "../../src/storage/activity";
+import { useActivityContext } from "../../src/context/activity-context";
+import { buildQrValue } from "../../src/utils/qr-builder";
+import { encodeRouteParam } from "../../src/utils/route-params";
 import { styles } from "../../styles/crearStyles";
 
 export default function Crear() {
-  const [text, setText] = useState("");
-  const maxCharacters = 150;
+  const form = useQrForm();
   const { colors } = useAppTheme();
   const { user, loading } = useSession();
+  const { addGeneratedItem } = useActivityContext();
 
   const handleGenerate = async () => {
-    if (!text.trim()) {
-      Alert.alert("Atención", "Escribe algo primero");
+    const result = buildQrValue({
+      selectedType: form.selectedType,
+      link: form.link,
+      text: form.text,
+      wifiName: form.wifiName,
+      wifiPassword: form.wifiPassword,
+      wifiSecurity: form.wifiSecurity,
+      contactName: form.contactName,
+      contactPhone: form.contactPhone,
+      contactEmail: form.contactEmail,
+    });
+
+    if ("error" in result) {
+      Alert.alert("Atención", result.error);
       return;
     }
 
-    const qrValue = text.trim();
+    const qrValue = result.value;
+    const qrCustomization = {
+      qrColor: form.qrColor,
+      qrBackgroundColor: form.qrBackgroundColor,
+      qrLogo: form.qrLogo,
+      qrLogoImageUri: form.qrLogoImageUri,
+    };
+
     await addGeneratedItem(qrValue);
-    setText("");
+    form.resetCurrentForm();
 
     router.push({
       pathname: "/resultado",
-      params: { value: qrValue },
+      params: {
+        value: encodeRouteParam(qrValue),
+        qrColor: encodeRouteParam(qrCustomization.qrColor),
+        qrBackgroundColor: encodeRouteParam(qrCustomization.qrBackgroundColor),
+        qrLogo: qrCustomization.qrLogo,
+        qrLogoImageUri: encodeRouteParam(qrCustomization.qrLogoImageUri),
+      },
     });
   };
 
   if (loading) {
-    return (
-      <View
-        style={[
-          styles.loadingContainer,
-          { backgroundColor: colors.background },
-        ]}
-      >
-        <Text style={[styles.loadingText, { color: colors.mutedText }]}>
-          Verificando sesion...
-        </Text>
-      </View>
-    );
+    return <SessionLoadingView colors={colors} />;
   }
 
   if (!user) {
-    return (
-      <View
-        style={[
-          styles.lockedContainer,
-          { backgroundColor: colors.background },
-        ]}
-      >
-        <View
-          style={[
-            styles.card,
-            styles.shadow,
-            { backgroundColor: colors.card, shadowColor: colors.shadow },
-          ]}
-        >
-          <View style={styles.lockedContent}>
-            <Ionicons name="lock-closed" size={42} color={colors.accent} />
-            <Text
-              style={[styles.lockedTitle, { color: colors.text }]}
-            >
-              Funcion bloqueada para invitado
-            </Text>
-            <Text
-              style={[styles.lockedDescription, { color: colors.mutedText }]}
-            >
-              Inicia sesion para generar y guardar codigos QR.
-            </Text>
-          </View>
-
-          <Pressable
-            style={[styles.button, { backgroundColor: colors.accent }]}
-            onPress={() => router.push("/login")}
-          >
-            <Text style={[styles.buttonText, { color: colors.accentContrast }]}>
-              Iniciar sesion
-            </Text>
-          </Pressable>
-
-          <Pressable
-            style={[
-              styles.button,
-              styles.secondaryButton,
-              {
-                borderColor: colors.border,
-              },
-            ]}
-            onPress={() => router.push("/register")}
-          >
-            <Text style={[styles.buttonText, { color: colors.text }]}>
-              Registrarse
-            </Text>
-          </Pressable>
-        </View>
-      </View>
-    );
+    return <LockedGuestView colors={colors} />;
   }
 
   return (
-    <ScrollView
-      keyboardShouldPersistTaps="handled"
+    <KeyboardAvoidingView
       style={[styles.container, { backgroundColor: colors.background }]}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 50 : 0}
     >
-      <View style={styles.header}>
-        <Pressable onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="chevron-back" size={24} color={colors.text} />
-        </Pressable>
-        <Text style={[styles.headerTitle, { color: colors.text }]}>
-          Crear QR
-        </Text>
-      </View>
-
-      <View
-        style={[
-          styles.card,
-          styles.shadow,
-          { backgroundColor: colors.card, shadowColor: colors.shadow },
-        ]}
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
       >
-        <Text style={[styles.cardSectionTitle, { color: colors.text }]}>
-          Contenido del Código QR
-        </Text>
+        <CreateQrHeader colors={colors} />
 
-        <View style={[styles.inputContainer, { borderColor: colors.border }]}>
-          <TextInput
-            style={[
-              styles.input,
-              {
-                color: colors.text,
-              },
-            ]}
-            placeholder="Ingresa un texto o URL para generar un código QR.."
-            placeholderTextColor={colors.mutedText}
-            value={text}
-            onChangeText={setText}
-            multiline={true}
-            maxLength={maxCharacters}
-            onSubmitEditing={handleGenerate}
-          />
+        <QrTypeSelector
+          selectedType={form.selectedType}
+          onSelectType={form.setSelectedType}
+          colors={colors}
+        />
 
-          <Text style={[styles.charCounter, { color: colors.mutedText }]}>
-            {text.length}/{maxCharacters} caracteres
+        <QrContentForm form={form} colors={colors} onSubmit={handleGenerate} />
+
+        <QrCustomizationForm form={form} colors={colors} />
+
+        <Pressable
+          style={[styles.button, { backgroundColor: colors.accent }]}
+          onPress={handleGenerate}
+        >
+          <Text style={[styles.buttonText, { color: colors.accentContrast }]}>
+            Generar Código QR
           </Text>
-        </View>
-      </View>
+        </Pressable>
 
-      <Pressable
-        style={[styles.button, { backgroundColor: colors.accent }]}
-        onPress={handleGenerate}
-      >
-        <Text style={[styles.buttonText, { color: colors.accentContrast }]}>
-          Generar Código QR
-        </Text>
-      </Pressable>
-
-      <View style={styles.bottomSpacer} />
-    </ScrollView>
+        <View style={styles.bottomSpacer} />
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }

@@ -6,6 +6,8 @@ import {
 import { StatusBar } from "expo-status-bar";
 import { Stack } from "expo-router";
 import { Colors } from "../styles/theme";
+import { ActivityProvider } from "../src/context/activity-context";
+import { AuthProvider } from "../src/context/auth-context";
 import { AppThemeProvider } from "../hooks/use-app-theme";
 import { useColorScheme } from "../hooks/use-color-scheme";
 
@@ -60,7 +62,11 @@ function RootNavigator() {
 export default function RootLayout() {
   return (
     <AppThemeProvider>
-      <RootNavigator />
+      <AuthProvider>
+        <ActivityProvider>
+          <RootNavigator />
+        </ActivityProvider>
+      </AuthProvider>
     </AppThemeProvider>
   );
 }

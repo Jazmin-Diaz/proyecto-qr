@@ -3,6 +3,7 @@ import {
   buttonStyles,
   cardStyles,
   headerStyles,
+  appTextStyle,
   layoutStyles,
   radius,
   spacing,
@@ -10,11 +11,15 @@ import {
 
 export const styles = StyleSheet.create({
   container: layoutStyles.container,
+  scrollContent: {
+    paddingBottom: 180,
+  },
   loadingContainer: {
     ...layoutStyles.container,
     justifyContent: "center",
   },
   loadingText: {
+    ...appTextStyle,
     textAlign: "center",
   },
   lockedContainer: {
@@ -27,11 +32,13 @@ export const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   lockedTitle: {
+    ...appTextStyle,
     fontSize: 20,
     fontWeight: "700",
     textAlign: "center",
   },
   lockedDescription: {
+    ...appTextStyle,
     textAlign: "center",
     lineHeight: 20,
   },
@@ -42,12 +49,34 @@ export const styles = StyleSheet.create({
   headerTitle: headerStyles.title,
   card: cardStyles.card,
   cardSectionTitle: {
+    ...appTextStyle,
     fontSize: 14,
     fontWeight: "600",
     marginBottom: spacing.sm,
     textTransform: "none",
   },
   shadow: cardStyles.softShadow,
+  typeGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: spacing.sm,
+  },
+  typeButton: {
+    width: "47.8%",
+    minHeight: 74,
+    borderWidth: 1,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.md,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: spacing.xs,
+  },
+  typeButtonText: {
+    ...appTextStyle,
+    fontSize: 14,
+    fontWeight: "700",
+  },
   inputContainer: {
     borderWidth: 1,
     borderRadius: radius.sm,
@@ -56,6 +85,7 @@ export const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   input: {
+    ...appTextStyle,
     fontSize: 16,
     flex: 1,
     height: 150,
@@ -64,9 +94,108 @@ export const styles = StyleSheet.create({
     textTransform: "none",
   },
   charCounter: {
+    ...appTextStyle,
     fontSize: 12,
     textAlign: "right",
     marginTop: spacing.sm,
+  },
+  formGroup: {
+    gap: spacing.sm,
+  },
+  singleInput: {
+    ...appTextStyle,
+    borderWidth: 1,
+    borderRadius: radius.sm,
+    fontSize: 16,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
+  },
+  passwordInputWrapper: {
+    borderWidth: 1,
+    borderRadius: radius.sm,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  passwordInput: {
+    ...appTextStyle,
+    flex: 1,
+    fontSize: 16,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
+  },
+  passwordIconButton: {
+    paddingHorizontal: 12,
+    paddingVertical: spacing.sm,
+  },
+  securityRow: {
+    flexDirection: "row",
+    gap: spacing.sm,
+  },
+  securityButton: {
+    flex: 1,
+    borderWidth: 1,
+    borderRadius: radius.sm,
+    paddingVertical: 12,
+    alignItems: "center",
+  },
+  securityButtonText: {
+    ...appTextStyle,
+    fontSize: 13,
+    fontWeight: "700",
+  },
+  customizationLabel: {
+    ...appTextStyle,
+    fontSize: 12,
+    fontWeight: "800",
+    marginTop: spacing.sm,
+    marginBottom: spacing.xs,
+    textTransform: "uppercase",
+  },
+  swatchRow: {
+    flexDirection: "row",
+    gap: spacing.sm,
+    marginBottom: spacing.sm,
+  },
+  swatchButton: {
+    width: 38,
+    height: 38,
+    borderRadius: radius.round,
+    borderWidth: 2,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  brandImageRow: {
+    flexDirection: "row",
+    gap: spacing.sm,
+  },
+  brandImageButton: {
+    flex: 1,
+    minHeight: 58,
+    borderWidth: 1,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.sm,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: spacing.sm,
+  },
+  brandImagePreview: {
+    width: 34,
+    height: 34,
+    borderRadius: radius.sm,
+  },
+  brandImageText: {
+    ...appTextStyle,
+    fontSize: 13,
+    fontWeight: "700",
+  },
+  brandImageClearButton: {
+    width: 58,
+    minHeight: 58,
+    borderWidth: 1,
+    borderRadius: radius.sm,
+    alignItems: "center",
+    justifyContent: "center",
   },
   button: {
     ...buttonStyles.primaryButton,

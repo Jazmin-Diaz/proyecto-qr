@@ -5,7 +5,8 @@ import { useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import { Animated, Pressable, Text, View } from "react-native";
 import { useAppTheme } from "../../hooks/use-app-theme";
-import { addScannedItem } from "../../src/storage/activity";
+import { useActivityContext } from "../../src/context/activity-context";
+import { encodeRouteParam } from "../../src/utils/route-params";
 import { styles } from "../../styles/homeStyles";
 
 const CameraGuide = () => (
@@ -23,6 +24,7 @@ export default function Home() {
   const router = useRouter();
   const translateY = useRef(new Animated.Value(0)).current;
   const { colors } = useAppTheme();
+  const { addScannedItem } = useActivityContext();
 
   useEffect(() => {
     Animated.loop(
@@ -80,7 +82,7 @@ export default function Home() {
                     await addScannedItem(event.data);
                     router.push({
                       pathname: "/resultado-scann",
-                      params: { data: event.data },
+                      params: { data: encodeRouteParam(event.data) },
                     });
                   }
             }

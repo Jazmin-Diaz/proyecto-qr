@@ -11,18 +11,19 @@ import {
 import { AppHeader } from "../components/app-header";
 import { useAppTheme } from "../hooks/use-app-theme";
 import { useActivity, formatDate } from "../hooks/use-activity";
-import { clearScannedItems } from "../src/storage/activity";
+import { useActivityContext } from "../src/context/activity-context";
 import type { ActivityItem } from "../src/storage/activity";
 import { styles } from "../styles/historialEscaneosStyles";
 
 export default function HistorialEscaneosScreen() {
   const { colors } = useAppTheme();
   const { items, user } = useActivity("scanned");
+  const { clearScannedHistory } = useActivityContext();
 
   const clearHistory = () => {
     if (!items.length) return;
     void (async () => {
-      await clearScannedItems();
+      await clearScannedHistory();
     })();
   };
 

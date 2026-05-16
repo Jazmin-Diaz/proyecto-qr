@@ -1,41 +1,14 @@
-import { useFocusEffect } from "@react-navigation/native";
-import { useCallback, useState } from "react";
-import type { ActivityItem } from "../src/storage/activity";
-import { getGeneratedItems, getScannedItems } from "../src/storage/activity";
-import { getSession } from "../src/storage/session";
-import type { AuthUser } from "../src/services/auth";
+import type { ActivityKind } from "../src/context/activity-context";
+import { useActivityContext } from "../src/context/activity-context";
+import { useAuth } from "../src/context/auth-context";
 
-export function useActivity(type: "generated" | "scanned") {
-  const [items, setItems] = useState<ActivityItem[]>([]);
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [loading, setLoading] = useState(true);
+export function useActivity(type: ActivityKind) {
+  const { user } = useAuth();
+  const { generatedItems, scannedItems, loading, refreshActivity } =
+    useActivityContext();
+  const items = type === "generated" ? generatedItems : scannedItems;
 
-  const loadData = useCallback(async () => {
-    setLoading(true);
-    const session = await getSession();
-    setUser(session);
-
-    if (!session) {
-      setItems([]);
-      setLoading(false);
-      return;
-    }
-
-    const data = type === "generated" 
-      ? await getGeneratedItems() 
-      : await getScannedItems();
-    
-    setItems(data);
-    setLoading(false);
-  }, [type]);
-
-  useFocusEffect(
-    useCallback(() => {
-      loadData();
-    }, [loadData]),
-  );
-
-  return { items, user, loading };
+  return { items, user, loading, refreshActivity };
 }
 
 export const formatDate = (value: string) =>

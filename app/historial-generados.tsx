@@ -4,17 +4,19 @@ import { Pressable, ScrollView, Text, View } from "react-native";
 import { AppHeader } from "../components/app-header";
 import { formatDate, useActivity } from "../hooks/use-activity";
 import { useAppTheme } from "../hooks/use-app-theme";
-import { clearGeneratedItems } from "../src/storage/activity";
+import { useActivityContext } from "../src/context/activity-context";
+import { encodeRouteParam } from "../src/utils/route-params";
 import { styles } from "../styles/historialGeneradosStyles";
 
 export default function HistorialGeneradosScreen() {
   const { colors } = useAppTheme();
   const { items, user } = useActivity("generated");
+  const { clearGeneratedHistory } = useActivityContext();
 
   const clearHistory = () => {
     if (!items.length) return;
     void (async () => {
-      await clearGeneratedItems();
+      await clearGeneratedHistory();
     })();
   };
 
@@ -83,7 +85,7 @@ export default function HistorialGeneradosScreen() {
                 onPress={() =>
                   router.push({
                     pathname: "/resultado",
-                    params: { value: item.value },
+                    params: { value: encodeRouteParam(item.value) },
                   })
                 }
                 style={[

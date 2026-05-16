@@ -1,47 +1,19 @@
-import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React from "react";
-import { Alert, Pressable, ScrollView, Text, View } from "react-native";
+import { Alert, ScrollView, Text, View } from "react-native";
+import { MenuCard } from "../../components/profile/menu-card";
+import { MenuOption } from "../../components/profile/menu-option";
+import { MenuSeparator } from "../../components/profile/menu-separator";
+import { ProfileHeader } from "../../components/profile/profile-header";
 import { useAppTheme } from "../../hooks/use-app-theme";
 import { useSession } from "../../hooks/use-session";
-import { clearSession } from "../../src/storage/session";
+import { useAuth } from "../../src/context/auth-context";
 import { styles } from "../../styles/perfilStyles";
-
-type MenuOptionProps = {
-  icon: React.ComponentProps<typeof Ionicons>["name"];
-  title: string;
-  onPress: () => void;
-  color: string;
-  arrowColor: string;
-  disabled?: boolean;
-};
-
-function MenuOption({
-  icon,
-  title,
-  onPress,
-  color,
-  arrowColor,
-  disabled = false,
-}: MenuOptionProps) {
-  return (
-    <Pressable
-      style={[styles.optionRow, disabled && { opacity: 0.45 }]}
-      onPress={onPress}
-    >
-      <View style={styles.optionLeft}>
-        <Ionicons name={icon} size={22} color={color} style={styles.iconFixed} />
-        <Text style={[styles.optionTitle, { color }]}>{title}</Text>
-      </View>
-      <Ionicons name="chevron-forward" size={20} color={arrowColor} />
-    </Pressable>
-  );
-}
 
 export default function PerfilScreen() {
   const router = useRouter();
   const { colors } = useAppTheme();
   const { user } = useSession();
+  const { signOut } = useAuth();
 
   const handleLogout = () => {
     Alert.alert("Cerrar sesión", "Se cerrara tu sesión en este dispositivo.", [
@@ -50,7 +22,7 @@ export default function PerfilScreen() {
         text: "Cerrar sesión",
         style: "destructive",
         onPress: async () => {
-          await clearSession();
+          await signOut();
           router.replace("/(tabs)/perfil");
         },
       },
@@ -72,39 +44,10 @@ export default function PerfilScreen() {
     <ScrollView
       style={[styles.container, { backgroundColor: colors.background }]}
     >
-      <View
-        style={[
-          styles.header,
-          {
-            backgroundColor: colors.header,
-            shadowColor: colors.shadow,
-          },
-        ]}
-      >
-        <View
-          style={[
-            styles.avatarPlaceholder,
-            { backgroundColor: colors.accent },
-          ]}
-        >
-          <Ionicons name="person" size={50} color={colors.accentContrast} />
-        </View>
-        <Text style={[styles.userName, { color: colors.text }]}>
-          {user ? user.nombre : "Usuario Invitado"}
-        </Text>
-        <Text style={[styles.userEmail, { color: colors.mutedText }]}>
-          {user ? user.correo : "Inicia sesion para guardar tus datos"}
-        </Text>
-      </View>
+      <ProfileHeader user={user} colors={colors} />
 
       <View style={styles.menuContainer}>
-        <Text style={[styles.sectionLabel, { color: colors.subtleText }]}>CUENTA</Text>
-        <View
-          style={[
-            styles.card,
-            { backgroundColor: colors.card, shadowColor: colors.shadow },
-          ]}
-        >
+        <MenuCard label="CUENTA" colors={colors}>
           {user ? (
             <MenuOption
               icon="log-out-outline"
@@ -123,9 +66,7 @@ export default function PerfilScreen() {
                 arrowColor={colors.subtleText}
               />
 
-              <View
-                style={[styles.separator, { backgroundColor: colors.separator }]}
-              />
+              <MenuSeparator colors={colors} />
 
               <MenuOption
                 icon="person-add-outline"
@@ -136,17 +77,9 @@ export default function PerfilScreen() {
               />
             </>
           )}
-        </View>
+        </MenuCard>
 
-        <Text style={[styles.sectionLabel, { color: colors.subtleText }]}>
-          ACTIVIDAD
-        </Text>
-        <View
-          style={[
-            styles.card,
-            { backgroundColor: colors.card, shadowColor: colors.shadow },
-          ]}
-        >
+        <MenuCard label="ACTIVIDAD" colors={colors}>
           <MenuOption
             icon="qr-code-outline"
             title="Mis QRs Generados"
@@ -160,9 +93,7 @@ export default function PerfilScreen() {
             disabled={!user}
           />
 
-          <View
-            style={[styles.separator, { backgroundColor: colors.separator }]}
-          />
+          <MenuSeparator colors={colors} />
 
           <MenuOption
             icon="time-outline"
@@ -177,9 +108,7 @@ export default function PerfilScreen() {
             disabled={!user}
           />
 
-          <View
-            style={[styles.separator, { backgroundColor: colors.separator }]}
-          />
+          <MenuSeparator colors={colors} />
 
           <MenuOption
             icon="settings-outline"
@@ -189,17 +118,9 @@ export default function PerfilScreen() {
             arrowColor={colors.subtleText}
             disabled={!user}
           />
-        </View>
+        </MenuCard>
 
-        <Text style={[styles.sectionLabel, { color: colors.subtleText }]}>
-          OTROS
-        </Text>
-        <View
-          style={[
-            styles.card,
-            { backgroundColor: colors.card, shadowColor: colors.shadow },
-          ]}
-        >
+        <MenuCard label="OTROS" colors={colors}>
           <MenuOption
             icon="help-circle-outline"
             title="Ayuda y Soporte"
@@ -207,7 +128,7 @@ export default function PerfilScreen() {
             color={colors.text}
             arrowColor={colors.subtleText}
           />
-        </View>
+        </MenuCard>
       </View>
 
       <Text style={[styles.versionText, { color: colors.subtleText }]}>

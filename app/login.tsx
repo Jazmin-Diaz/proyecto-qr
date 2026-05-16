@@ -1,19 +1,11 @@
-import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useState } from "react";
-import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { Alert, Pressable, Text, TextInput } from "react-native";
+import { AuthScreenLayout } from "../components/auth/auth-screen-layout";
+import { PasswordInput } from "../components/auth/password-input";
 import { useAppTheme } from "../hooks/use-app-theme";
+import { useAuth } from "../src/context/auth-context";
 import { loginUser } from "../src/services/auth";
-import { saveSession } from "../src/storage/session";
 import { styles } from "../styles/registerStyles";
 
 export default function Login() {
@@ -22,6 +14,7 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { colors } = useAppTheme();
+  const { signIn } = useAuth();
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -36,7 +29,7 @@ export default function Login() {
         password,
       });
 
-      await saveSession(response.usuario);
+      await signIn(response.usuario);
       Alert.alert("Sesión iniciada", `Bienvenida/o ${response.usuario.nombre}`);
       router.replace("/(tabs)/perfil");
     } catch (error) {
@@ -49,86 +42,54 @@ export default function Login() {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={[styles.container, { backgroundColor: colors.background }]}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 50 : 0}
+    <AuthScreenLayout
+      title="Iniciar sesión"
+      subtitle="Accede con tu cuenta para ver y guardar tu información."
+      colors={colors}
     >
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
-        keyboardDismissMode="on-drag"
+      <TextInput
+        style={[
+          styles.input,
+          {
+            color: colors.text,
+            borderColor: colors.border,
+            backgroundColor: colors.input,
+          },
+        ]}
+        placeholder="Correo"
+        placeholderTextColor={colors.mutedText}
+        keyboardType="email-address"
+        autoCapitalize="none"
+        value={email}
+        onChangeText={setEmail}
+        returnKeyType="next"
+      />
+
+      <PasswordInput
+        placeholder="Contraseña"
+        value={password}
+        onChangeText={setPassword}
+        visible={showPassword}
+        onToggleVisible={() => setShowPassword((prev) => !prev)}
+        returnKeyType="done"
+        colors={colors}
+      />
+
+      <Pressable
+        style={[styles.button, { backgroundColor: colors.accent }]}
+        disabled={isLoading}
+        onPress={handleLogin}
       >
-        <Text style={[styles.title, { color: colors.text }]}>Iniciar sesión</Text>
-        <Text style={[styles.subtitle, { color: colors.mutedText }]}>
-          Accede con tu cuenta para ver y guardar tu información.
+        <Text style={[styles.buttonText, { color: colors.accentContrast }]}>
+          {isLoading ? "Ingresando..." : "Iniciar sesión"}
         </Text>
+      </Pressable>
 
-        <TextInput
-          style={[
-            styles.input,
-            {
-              color: colors.text,
-              borderColor: colors.border,
-              backgroundColor: colors.input,
-            },
-          ]}
-          placeholder="Correo"
-          placeholderTextColor={colors.mutedText}
-          keyboardType="email-address"
-          autoCapitalize="none"
-          value={email}
-          onChangeText={setEmail}
-          returnKeyType="next"
-        />
-
-        <View
-          style={[
-            styles.inputWrapper,
-            {
-              borderColor: colors.border,
-              backgroundColor: colors.input,
-            },
-          ]}
-        >
-          <TextInput
-            style={[styles.inputWithIcon, { color: colors.text }]}
-            placeholder="Contraseña"
-            placeholderTextColor={colors.mutedText}
-            secureTextEntry={!showPassword}
-            autoCapitalize="none"
-            value={password}
-            onChangeText={setPassword}
-            returnKeyType="done"
-          />
-          <Pressable
-            onPress={() => setShowPassword((prev) => !prev)}
-            style={styles.iconButton}
-          >
-            <Ionicons
-              name={showPassword ? "eye-off-outline" : "eye-outline"}
-              size={20}
-              color={colors.mutedText}
-            />
-          </Pressable>
-        </View>
-
-        <Pressable
-          style={[styles.button, { backgroundColor: colors.accent }]}
-          disabled={isLoading}
-          onPress={handleLogin}
-        >
-          <Text style={[styles.buttonText, { color: colors.accentContrast }]}>
-            {isLoading ? "Ingresando..." : "Iniciar sesión"}
-          </Text>
-        </Pressable>
-
-        <Pressable onPress={() => router.push("/register")}>
-          <Text style={[styles.linkText, { color: colors.accent }]}>
-            ¿Aún no tienes cuenta? Regístrate
-          </Text>
-        </Pressable>
-      </ScrollView>
-    </KeyboardAvoidingView>
+      <Pressable onPress={() => router.push("/register")}>
+        <Text style={[styles.linkText, { color: colors.accent }]}>
+          ¿Aún no tienes cuenta? Regístrate
+        </Text>
+      </Pressable>
+    </AuthScreenLayout>
   );
 }
