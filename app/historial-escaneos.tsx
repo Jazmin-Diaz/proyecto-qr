@@ -12,7 +12,7 @@ import { AppHeader } from "../components/app-header";
 import { useAppTheme } from "../hooks/use-app-theme";
 import { useActivity, formatDate } from "../hooks/use-activity";
 import { useActivityContext } from "../src/context/activity-context";
-import type { ActivityItem } from "../src/storage/activity";
+import type { ActivityItem } from "../src/services/activity";
 import { styles } from "../styles/historialEscaneosStyles";
 
 export default function HistorialEscaneosScreen() {
@@ -28,9 +28,11 @@ export default function HistorialEscaneosScreen() {
   };
 
   const onOpenItem = async (item: ActivityItem) => {
-    const isLink = item.value.startsWith("http");
+    const isLink = /^(?:https?:\/\/|www\.)/i.test(item.value);
     if (isLink) {
-      await Linking.openURL(item.value);
+      await Linking.openURL(
+        item.value.startsWith("www.") ? `https://${item.value}` : item.value,
+      );
       return;
     }
     await Clipboard.setStringAsync(item.value);

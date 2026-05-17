@@ -29,7 +29,7 @@ export default function Login() {
         password,
       });
 
-      await signIn(response.usuario);
+      await signIn(response);
       Alert.alert("Sesión iniciada", `Bienvenida/o ${response.usuario.nombre}`);
       router.replace("/(tabs)/perfil");
     } catch (error) {

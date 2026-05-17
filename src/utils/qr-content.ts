@@ -1,5 +1,5 @@
 export type ParsedQrContent = {
-  type: "link" | "text" | "wifi" | "contact";
+  type: "link" | "text" | "wifi" | "contact" | "email" | "phone";
   title: string;
   icon: "link" | "text-outline" | "wifi" | "person-outline";
   actionLabel?: string;
@@ -333,7 +333,32 @@ const parseCompactContactPayload = (value: string) => {
   return [{ label: "Nombre", value: compactValue }];
 };
 
-const isLinkValue = (value: string) => /^https?:\/\//i.test(value.trim());
+const isLinkValue = (value: string) =>
+  /^(?:https?:\/\/|www\.)/i.test(value.trim());
+
+const normalizeLinkValue = (value: string) => {
+  const trimmedValue = value.trim();
+  return /^www\./i.test(trimmedValue) ? `https://${trimmedValue}` : trimmedValue;
+};
+
+const isEmailValue = (value: string) =>
+  /^(?:mailto:)?[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(value.trim());
+
+const normalizeEmailValue = (value: string) =>
+  value.trim().replace(/^mailto:/i, "");
+
+const isPhoneValue = (value: string) => {
+  const trimmedValue = value.trim().replace(/^tel:/i, "");
+  const digits = trimmedValue.replace(/\D/g, "");
+
+  return (
+    digits.length >= 8 &&
+    digits.length <= 15 &&
+    /^[+]?[0-9()\-\s.]+$/.test(trimmedValue)
+  );
+};
+
+const normalizePhoneValue = (value: string) => value.trim().replace(/^tel:/i, "");
 
 export const parseQrContent = (value = ""): ParsedQrContent => {
   const rawValue = value;
@@ -407,6 +432,48 @@ export const parseQrContent = (value = ""): ParsedQrContent => {
     };
   }
 
+  if (isLinkValue(comparableValue)) {
+    const normalizedLink = normalizeLinkValue(comparableValue);
+
+    return {
+      type: "link",
+      title: "ENLACE DETECTADO",
+      icon: "link",
+      actionLabel: "Ir al sitio web",
+      actionUrl: normalizedLink,
+      fields: [{ label: "Link", value: comparableValue }],
+      rawValue,
+    };
+  }
+
+  if (isEmailValue(comparableValue)) {
+    const email = normalizeEmailValue(comparableValue);
+
+    return {
+      type: "email",
+      title: "CORREO DETECTADO",
+      icon: "text-outline",
+      actionLabel: "Enviar correo",
+      actionUrl: `mailto:${email}`,
+      fields: [{ label: "Correo", value: email }],
+      rawValue,
+    };
+  }
+
+  if (isPhoneValue(comparableValue)) {
+    const phone = normalizePhoneValue(comparableValue);
+
+    return {
+      type: "phone",
+      title: "TELEFONO DETECTADO",
+      icon: "person-outline",
+      actionLabel: "Llamar",
+      actionUrl: `tel:${phone}`,
+      fields: [{ label: "Telefono", value: phone }],
+      rawValue,
+    };
+  }
+
   const labeledContactFields = parseLabeledContactPayload(comparableValue);
 
   if (labeledContactFields.length > 0) {
@@ -449,18 +516,6 @@ export const parseQrContent = (value = ""): ParsedQrContent => {
       title: "RED WIFI",
       icon: "wifi",
       fields: compactWifiFields,
-      rawValue,
-    };
-  }
-
-  if (isLinkValue(comparableValue)) {
-    return {
-      type: "link",
-      title: "ENLACE DETECTADO",
-      icon: "link",
-      actionLabel: "Ir al sitio web",
-      actionUrl: comparableValue,
-      fields: [{ label: "Link", value: comparableValue }],
       rawValue,
     };
   }

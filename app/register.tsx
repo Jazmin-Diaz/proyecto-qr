@@ -51,7 +51,7 @@ export default function Register() {
         password,
       });
 
-      await signIn(response.usuario);
+      await signIn(response);
       Alert.alert("Cuenta creada", "Tu cuenta se registró correctamente");
       router.replace("/(tabs)/perfil");
     } catch (error) {

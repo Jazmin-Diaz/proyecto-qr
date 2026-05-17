@@ -8,13 +8,23 @@ import {
   useState,
 } from "react";
 import type { AuthUser } from "../services/auth";
-import { clearSession, getSession, saveSession } from "../storage/session";
+import { getCurrentSession, logoutUser } from "../services/auth";
+import {
+  clearSessionToken,
+  getSessionToken,
+  saveSessionToken,
+} from "../storage/session";
+
+type AuthSession = {
+  usuario: AuthUser;
+  token: string;
+};
 
 type AuthContextValue = {
   user: AuthUser | null;
   loading: boolean;
   refreshSession: () => Promise<void>;
-  signIn: (user: AuthUser) => Promise<void>;
+  signIn: (session: AuthSession) => Promise<void>;
   signOut: () => Promise<void>;
 };
 
@@ -26,22 +36,45 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
   const refreshSession = useCallback(async () => {
     setLoading(true);
-    const session = await getSession();
-    setUser(session);
-    setLoading(false);
+    try {
+      const token = await getSessionToken();
+
+      if (!token) {
+        setUser(null);
+        return;
+      }
+
+      const response = await getCurrentSession(token);
+      await saveSessionToken(response.token);
+      setUser(response.usuario);
+    } catch {
+      await clearSessionToken();
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
     refreshSession();
   }, [refreshSession]);
 
-  const signIn = useCallback(async (authUser: AuthUser) => {
-    await saveSession(authUser);
-    setUser(authUser);
+  const signIn = useCallback(async (session: AuthSession) => {
+    await saveSessionToken(session.token);
+    setUser(session.usuario);
   }, []);
 
   const signOut = useCallback(async () => {
-    await clearSession();
+    const token = await getSessionToken();
+    if (token) {
+      try {
+        await logoutUser(token);
+      } catch {
+        // The local token is removed even if the server is unreachable.
+      }
+    }
+
+    await clearSessionToken();
     setUser(null);
   }, []);
 

@@ -9,6 +9,7 @@ export type AuthUser = {
 type AuthResponse = {
   mensaje: string;
   usuario: AuthUser;
+  token: string;
 };
 
 const parseError = async (response: Response) => {
@@ -25,13 +26,16 @@ const parseError = async (response: Response) => {
   }
 };
 
-const request = async (path: string, body: Record<string, string>) => {
+const request = async (
+  path: string,
+  options: RequestInit,
+): Promise<AuthResponse> => {
   const response = await fetch(`${API_BASE_URL}${path}`, {
-    method: "POST",
+    ...options,
     headers: {
       "Content-Type": "application/json",
+      ...options.headers,
     },
-    body: JSON.stringify(body),
   });
 
   if (!response.ok) {
@@ -45,9 +49,38 @@ export const registerUser = async (payload: {
   nombre: string;
   correo: string;
   password: string;
-}) => request("/api/usuarios", payload);
+}) =>
+  request("/api/usuarios", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
 
 export const loginUser = async (payload: {
   correo: string;
   password: string;
-}) => request("/api/usuarios/login", payload);
+}) =>
+  request("/api/usuarios/login", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+
+export const getCurrentSession = async (token: string) =>
+  request("/api/usuarios/sesion", {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+export const logoutUser = async (token: string) => {
+  const response = await fetch(`${API_BASE_URL}/api/usuarios/logout`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(await parseError(response));
+  }
+};

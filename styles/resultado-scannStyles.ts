@@ -76,6 +76,19 @@ export const styles = StyleSheet.create({
     ...buttonStyles.buttonText,
     fontSize: 16,
   },
+  secondaryButton: {
+    ...layoutStyles.rowCenter,
+    width: "100%",
+    padding: 18,
+    borderRadius: radius.lg,
+    borderWidth: 1.5,
+    justifyContent: "center",
+    marginTop: spacing.md,
+  },
+  secondaryActionText: {
+    ...buttonStyles.buttonText,
+    fontSize: 16,
+  },
   bottomSpacer: {
     height: spacing.section,
   },

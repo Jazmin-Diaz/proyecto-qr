@@ -1,6 +1,6 @@
-import type { ActivityKind } from "../src/context/activity-context";
 import { useActivityContext } from "../src/context/activity-context";
 import { useAuth } from "../src/context/auth-context";
+import type { ActivityKind } from "../src/services/activity";
 
 export function useActivity(type: ActivityKind) {
   const { user } = useAuth();

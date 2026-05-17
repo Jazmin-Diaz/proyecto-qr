@@ -7,18 +7,13 @@ import {
   useMemo,
   useState,
 } from "react";
-import type { ActivityItem } from "../storage/activity";
+import type { ActivityItem, ActivityKind } from "../services/activity";
 import {
-  addGeneratedItem as saveGeneratedItem,
-  addScannedItem as saveScannedItem,
-  clearGeneratedItems,
-  clearScannedItems,
-  getGeneratedItems,
-  getScannedItems,
-} from "../storage/activity";
+  addActivityItem,
+  clearActivityItems,
+  getActivityItems,
+} from "../services/activity";
 import { useAuth } from "./auth-context";
-
-type ActivityKind = "generated" | "scanned";
 
 type ActivityContextValue = {
   generatedItems: ActivityItem[];
@@ -49,14 +44,17 @@ export function ActivityProvider({ children }: PropsWithChildren) {
       return;
     }
 
-    const [generated, scanned] = await Promise.all([
-      getGeneratedItems(),
-      getScannedItems(),
-    ]);
+    try {
+      const [generated, scanned] = await Promise.all([
+        getActivityItems(user.id, "generated"),
+        getActivityItems(user.id, "scanned"),
+      ]);
 
-    setGeneratedItems(generated);
-    setScannedItems(scanned);
-    setLoading(false);
+      setGeneratedItems(generated);
+      setScannedItems(scanned);
+    } finally {
+      setLoading(false);
+    }
   }, [user]);
 
   useEffect(() => {
@@ -65,29 +63,33 @@ export function ActivityProvider({ children }: PropsWithChildren) {
 
   const addGeneratedItem = useCallback(
     async (value: string) => {
-      await saveGeneratedItem(value);
+      if (!user) return;
+      await addActivityItem(user.id, "generated", value);
       await refreshActivity();
     },
-    [refreshActivity],
+    [refreshActivity, user],
   );
 
   const addScannedItem = useCallback(
     async (value: string) => {
-      await saveScannedItem(value);
+      if (!user) return;
+      await addActivityItem(user.id, "scanned", value);
       await refreshActivity();
     },
-    [refreshActivity],
+    [refreshActivity, user],
   );
 
   const clearGeneratedHistory = useCallback(async () => {
-    await clearGeneratedItems();
+    if (!user) return;
+    await clearActivityItems(user.id, "generated");
     setGeneratedItems([]);
-  }, []);
+  }, [user]);
 
   const clearScannedHistory = useCallback(async () => {
-    await clearScannedItems();
+    if (!user) return;
+    await clearActivityItems(user.id, "scanned");
     setScannedItems([]);
-  }, []);
+  }, [user]);
 
   const value = useMemo<ActivityContextValue>(
     () => ({

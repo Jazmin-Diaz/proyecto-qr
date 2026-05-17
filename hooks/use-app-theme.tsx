@@ -1,16 +1,12 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AppColors, AppThemeName } from "../styles/theme";
 import React, {
   PropsWithChildren,
   createContext,
   useContext,
-  useEffect,
   useMemo,
   useState,
 } from "react";
 import { useColorScheme as useNativeColorScheme } from "react-native";
-
-const THEME_STORAGE_KEY = "@qr-app/theme";
 
 type ThemeContextValue = {
   colorScheme: AppThemeName;
@@ -24,31 +20,6 @@ export function AppThemeProvider({ children }: PropsWithChildren) {
   const systemScheme = useNativeColorScheme();
   const [selectedTheme, setSelectedTheme] = useState<AppThemeName | null>(null);
 
-  useEffect(() => {
-    let isMounted = true;
-
-    const loadTheme = async () => {
-      try {
-        const savedTheme = await AsyncStorage.getItem(THEME_STORAGE_KEY);
-
-        if (
-          isMounted &&
-          (savedTheme === "light" || savedTheme === "dark")
-        ) {
-          setSelectedTheme(savedTheme);
-        }
-      } catch {
-        // If storage is unavailable, the app falls back to the system theme.
-      }
-    };
-
-    loadTheme();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
   const colorScheme: AppThemeName =
     selectedTheme ?? (systemScheme === "dark" ? "dark" : "light");
 
@@ -58,12 +29,6 @@ export function AppThemeProvider({ children }: PropsWithChildren) {
       colors: AppColors[colorScheme],
       setColorScheme: async (theme) => {
         setSelectedTheme(theme);
-
-        try {
-          await AsyncStorage.setItem(THEME_STORAGE_KEY, theme);
-        } catch {
-          // The selected theme still applies for this session.
-        }
       },
     }),
     [colorScheme],

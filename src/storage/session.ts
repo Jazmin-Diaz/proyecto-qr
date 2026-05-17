@@ -1,26 +1,14 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import type { AuthUser } from "../services/auth";
+import * as SecureStore from "expo-secure-store";
 
-const SESSION_KEY = "auth_user_v1";
+const SESSION_TOKEN_KEY = "auth_session_token_v1";
 
-export const saveSession = async (user: AuthUser) => {
-  await AsyncStorage.setItem(SESSION_KEY, JSON.stringify(user));
+export const saveSessionToken = async (token: string) => {
+  await SecureStore.setItemAsync(SESSION_TOKEN_KEY, token);
 };
 
-export const getSession = async () => {
-  const rawData = await AsyncStorage.getItem(SESSION_KEY);
-  if (!rawData) {
-    return null;
-  }
+export const getSessionToken = async () =>
+  SecureStore.getItemAsync(SESSION_TOKEN_KEY);
 
-  try {
-    return JSON.parse(rawData) as AuthUser;
-  } catch {
-    await AsyncStorage.removeItem(SESSION_KEY);
-    return null;
-  }
-};
-
-export const clearSession = async () => {
-  await AsyncStorage.removeItem(SESSION_KEY);
+export const clearSessionToken = async () => {
+  await SecureStore.deleteItemAsync(SESSION_TOKEN_KEY);
 };

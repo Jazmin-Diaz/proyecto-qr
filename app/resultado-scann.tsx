@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import * as Clipboard from "expo-clipboard";
 import { router, useLocalSearchParams } from "expo-router";
 import { Alert, Linking, Pressable, ScrollView, Text, View } from "react-native";
 import { AppHeader } from "../components/app-header";
@@ -14,7 +15,9 @@ type ResultField = {
 
 const getActionLabel = (type: string) => {
   if (type === "wifi") return "Conectar";
-  if (type === "link") return "Abrir enlace";
+  if (type === "link") return "Abrir en el navegador";
+  if (type === "email") return "Enviar correo";
+  if (type === "phone") return "Llamar";
   if (type === "contact") return "Importar contacto";
   return "Aceptar";
 };
@@ -22,6 +25,8 @@ const getActionLabel = (type: string) => {
 const getIconName = (type: string) => {
   if (type === "wifi") return "wifi";
   if (type === "link") return "link";
+  if (type === "email") return "mail";
+  if (type === "phone") return "call";
   if (type === "contact") return "person";
   return "text";
 };
@@ -68,6 +73,10 @@ export default function ResultadoScan() {
           }))
         : content.type === "link"
           ? [{ label: "Enlace", value: getFieldValue("Link") }]
+          : content.type === "email"
+            ? [{ label: "Correo electrónico", value: getFieldValue("Correo") }]
+            : content.type === "phone"
+              ? [{ label: "Teléfono", value: getFieldValue("Telefono") }]
           : [{ label: "Texto", value: getFieldValue("Texto") }];
 
   const visibleFields = resultFields.filter((field) => field.value);
@@ -95,6 +104,11 @@ export default function ResultadoScan() {
     }
 
     router.back();
+  };
+
+  const handleCopy = async () => {
+    await Clipboard.setStringAsync(content.actionUrl ?? content.rawValue);
+    Alert.alert("Copiado", "El contenido se copio al portapapeles.");
   };
 
   return (
@@ -152,6 +166,20 @@ export default function ResultadoScan() {
             {getActionLabel(content.type)}
           </Text>
         </Pressable>
+
+        {["link", "email", "phone", "text"].includes(content.type) ? (
+          <Pressable
+            style={[
+              styles.secondaryButton,
+              { backgroundColor: colors.surface, borderColor: colors.border },
+            ]}
+            onPress={handleCopy}
+          >
+            <Text style={[styles.secondaryActionText, { color: colors.text }]}>
+              Copiar contenido
+            </Text>
+          </Pressable>
+        ) : null}
       </View>
 
       <View style={styles.bottomSpacer} />
